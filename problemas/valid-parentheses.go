@@ -1,6 +1,7 @@
+package main
+
 import (
 	"fmt"
-	"os"
 )
 
 type Stack []string
@@ -28,56 +29,58 @@ func (s *Stack) Pop() (string, bool) {
 }
 
 func isValid(s string) bool {
-	if len(s) > 10^4 || len(s) < 1 {
+	if len(s) <= 1 || len(s)%2 != 0 {
 		fmt.Println("Len of s is not acceptable")
-		os.Exit(1)
+		return false
 	}
 
-	var stack Stack // create a stack variable of type Stack
+	var stack Stack      // create a stack to save open caracteres
+	var searchFor string // create a string to save desired open bracket
+	var count int = 0    // counting
 
 	for _, ch := range s {
-		stack.Push(string(ch))
-	}
 
-	var searchFor string
-	var orgStackLen int
-	for len(stack) > 0 {
-		x, y := stack.Pop()
-		if y == true {
+		if string(ch) == "(" || string(ch) == "[" || string(ch) == "{" {
+			stack.Push(string(ch))
+			//fmt.Println(string(ch), "is an open caracter")
+			count++
+		} else {
+			//fmt.Println(string(ch), "is a closed caracter")
 
-			if x == "(" || x == "[" || x == "{" {
-				searchFor = "nothing"
+			if count == 0 {
+				return false // first interaction cannot be a closed caracter
 			}
 
-			if x == "]" {
-				searchFor = "["
-			} else if x == ")" {
-				searchFor = "("
-			} else if x == "}" {
-				searchFor = "{"
-			} else {
-				searchFor = "nothing"
-			}
-
-			if searchFor == "nothing" {
-				break // break here
-			}
-
-			orgStackLen = len(stack)
-
-			// search for opening caracter and remove it
-			for j := 0; j < len(stack); j++ {
-				if stack[j] == searchFor {
-					stack = (stack)[:j]
+			x, y := stack.Pop() // take top list from stack
+			if y == true {
+				if string(ch) == "]" { // check with kind of closed bracket it is
+					searchFor = "["
+				} else if string(ch) == ")" {
+					searchFor = "("
+				} else if string(ch) == "}" {
+					searchFor = "{"
+				} else {
+					return false
 				}
-			}
 
-			//if no opening caracter found break it
-			if orgStackLen == len(stack) {
-				break
+				// check if top item from stack is open it
+				if x != searchFor {
+					fmt.Println(x, ":", searchFor)
+					return false
+				}
+
+				count++
+
+			} else {
+				return false
 			}
 		}
 	}
 
 	return stack.IsEmpty()
+}
+
+func main() {
+	var s string = "))"
+	fmt.Println(isValid(s))
 }
